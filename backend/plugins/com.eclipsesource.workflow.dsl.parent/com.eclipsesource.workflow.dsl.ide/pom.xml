@@ -7,7 +7,7 @@
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>com.eclipsesource.workflow.dsl.ide</artifactId>
-	<packaging>eclipse-plugin</packaging>
+	<packaging>jar</packaging>
 
 	<build>
 		<plugins>
@@ -16,73 +16,28 @@
 				<artifactId>xtend-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>target-platform-configuration</artifactId>
-				<configuration>
-					<pomDependencies>consider</pomDependencies>
-				</configuration>
-			</plugin>
-		<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<version>3.0.1</version>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>1.9.1</version>
 				<executions>
 					<execution>
-						<id>copy-dependencies</id>
-						<phase>package</phase>
+						<id>add-source</id>
+						<phase>initialize</phase>
 						<goals>
-							<goal>copy-dependencies</goal>
+							<goal>add-source</goal>
+							<goal>add-resource</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>${project.build.directory}/libs</outputDirectory>
-							<overWriteReleases>false</overWriteReleases>
-							<overWriteSnapshots>false</overWriteSnapshots>
-							<overWriteIfNewer>true</overWriteIfNewer>
-							<excludeTransitive>true</excludeTransitive>
-							<excludeArtifactIds>
-								com.ibm.icu,
-								org.apache.ant,
-								org.apache.commons.lang,
-								org.apache.commons.logging,
-								org.eclipse.core.commands,
-								org.eclipse.core.contenttype,
-								org.eclipse.core.expressions,
-								org.eclipse.core.filesystem,
-								org.eclipse.core.jobs,
-								org.eclipse.core.resources,
-								org.eclipse.core.runtime,
-								org.eclipse.core.variables,
-								org.eclipse.debug.core,
-								org.eclipse.emf.codegen.ecore,
-								org.eclipse.emf.codegen,
-								org.eclipse.equinox.app,
-								org.eclipse.equinox.preferences,
-								org.eclipse.equinox.registry,
-								org.eclipse.jdt.core,
-								org.eclipse.jdt.debug,
-								org.eclipse.jdt.launching,
-								org.eclipse.text,
-								org.eclipse.xtend.typesystem.emf,
-								org.eclipse.xtend,
-							</excludeArtifactIds>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>com.googlecode.addjars-maven-plugin</groupId>
-				<artifactId>addjars-maven-plugin</artifactId>
-				<version>1.0.5</version>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>add-jars</goal>
-						</goals>
-						<configuration>
+							<sources>
+								<source>src/main/xtext-gen</source>
+							</sources>
 							<resources>
 								<resource>
-									<directory>${project.build.directory}/libs</directory>
+									<directory>src/main/xtext-gen</directory>
+									<excludes>
+										<exclude>**/*.java</exclude>
+										<exclude>**/*.g</exclude>
+									</excludes>
 								</resource>
 							</resources>
 						</configuration>
@@ -97,20 +52,13 @@
 					<transformers>
 						<transformer
 							implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-							<mainClass>com.eclipsesource.workflow.dsl.ide.RunSocketServer</mainClass>
+							<mainClass>org.eclipse.xtext.ide.server.ServerLauncher</mainClass>
 						</transformer>
 						<transformer
 							implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
 							<resource>plugin.properties</resource>
 						</transformer>
 					</transformers>
-					<artifactSet>
-						<excludes><!-- avoid duplicate inclusion due to addjars plugin -->
-							<exclude>*:com.eclipsesource.workflow.dsl.ide-asm*</exclude>
-							<exclude>*:com.eclipsesource.workflow.dsl.ide-log4j*</exclude>
-							<exclude>*:com.eclipsesource.workflow.dsl.ide-org.objectweb.asm*</exclude>
-						</excludes>
-					</artifactSet>
 					<filters>
 						<filter>
 							<artifact>*:*</artifact>
@@ -131,10 +79,8 @@
 								<exclude>profile.list</exclude>
 								<exclude>**/*._trace</exclude>
 								<exclude>**/*.g</exclude>
-								<exclude>**/*.tokens</exclude>
 								<exclude>**/*.mwe2</exclude>
 								<exclude>**/*.xtext</exclude>
-								<exclude>**/*.xtextbin</exclude>
 							</excludes>
 						</filter>
 					</filters>
@@ -153,5 +99,23 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>com.eclipsesource.workflow.dsl</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.xtext</groupId>
+			<artifactId>org.eclipse.xtext.ide</artifactId>
+			<version>${xtextVersion}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.xtext</groupId>
+			<artifactId>org.eclipse.xtext.xbase.ide</artifactId>
+			<version>${xtextVersion}</version>
+		</dependency>
+	</dependencies>
 
 </project>
